@@ -1,29 +1,25 @@
-import os
 import numpy as np
-import pandas as pd
 import torch
 import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import DataLoader, TensorDataset
-from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import StandardScaler
 from data_preprocessing import load_and_preprocess_data
 from model_training import GRUTFTModel
-import matplotlib.pyplot as plt
+from eval_metrics import plot_learning_curves
+
+def create_sequences(data, target, seq_length):
+    sequences = []
+    targets = []
+    for i in range(len(data) - seq_length):
+        sequences.append(data[i:i + seq_length])
+        targets.append(target.iloc[i + seq_length])
+    return np.array(sequences), np.array(targets)
 
 def main():
     file_path = "EURUSD_Candlestick_1_Hour_BID_01.01.2004-30.03.2024.csv"
     X_train, X_val, y_train, y_val, scaler = load_and_preprocess_data(file_path)
 
     sequence_length = 24
-
-    def create_sequences(data, target, seq_length):
-        sequences = []
-        targets = []
-        for i in range(len(data) - seq_length):
-            sequences.append(data[i:i + seq_length])
-            targets.append(target.iloc[i + seq_length])
-        return np.array(sequences), np.array(targets)
 
     X_train_seq, y_train_seq = create_sequences(X_train, y_train, sequence_length)
     X_val_seq, y_val_seq = create_sequences(X_val, y_val, sequence_length)
@@ -45,7 +41,7 @@ def main():
     criterion = nn.MSELoss()
     optimizer = optim.Adam(model.parameters(), lr=0.001, weight_decay=0.001)
 
-    epochs = 50
+    epochs = 2
     train_losses = []
     val_losses = []
 
@@ -82,14 +78,7 @@ def main():
                     print("Early stopping triggered")
                     break
 
-    plt.figure(figsize=(10, 5))
-    plt.plot(train_losses, label='Train Loss')
-    plt.plot(val_losses, label='Validation Loss')
-    plt.xlabel('Epoch')
-    plt.ylabel('Loss')
-    plt.title('Learning Curves')
-    plt.legend()
-    plt.show()
+    plot_learning_curves(train_losses, val_losses)
 
 if __name__ == "__main__":
     main()

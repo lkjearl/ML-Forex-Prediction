@@ -1,15 +1,7 @@
-import os
-import numpy as np
-import pandas as pd
 import torch
-import torch.nn as nn
-from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, confusion_matrix, roc_curve, roc_auc_score, precision_recall_curve
+from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
 import matplotlib.pyplot as plt
 import seaborn as sns
-from model_training import GRUTFTModel
-
-def load_and_preprocess_data(file_path):
-    return X_val, y_val, scaler
 
 def plot_learning_curves(train_losses, val_losses):
     plt.figure(figsize=(10, 5))
@@ -40,6 +32,14 @@ def plot_residuals(actual, predicted):
     plt.xlabel('Index')
     plt.ylabel('Residual')
     plt.show()
+
+def plot_residuals_distribution(residuals):
+    plt.figure(figsize=(10, 5))
+    sns.histplot(residuals, kde=True)
+    plt.xlabel('Residuals')
+    plt.ylabel('Frequency')
+    plt.title('Distribution of Residuals')
+    plt.show()
     
 def evaluate_model(model, criterion, X_val_tensor, y_val_tensor):
     model.eval()
@@ -50,58 +50,22 @@ def evaluate_model(model, criterion, X_val_tensor, y_val_tensor):
         y_pred = model(X_val_tensor).detach().numpy()
         y_true = y_val_tensor.numpy()
 
-        acc = accuracy_score(y_true, np.round(y_pred))
-        precision = precision_score(y_true, np.round(y_pred))
-        recall = recall_score(y_true, np.round(y_pred))
-        f1 = f1_score(y_true, np.round(y_pred))
+        mse = mean_squared_error(y_true, y_pred)
+        mae = mean_absolute_error(y_true, y_pred)
+        r2 = r2_score(y_true, y_pred)
 
-        print(f"Accuracy: {acc}")
-        print(f"Precision: {precision}")
-        print(f"Recall: {recall}")
-        print(f"F1 Score: {f1}")
+        print(f"Mean Squared Error: {mse}")
+        print(f"Mean Absolute Error: {mae}")
+        print(f"R^2 Score: {r2}")
 
-        cm = confusion_matrix(y_true, np.round(y_pred))
         plt.figure(figsize=(8, 6))
-        sns.heatmap(cm, annot=True, cmap='Blues', fmt='g')
-        plt.xlabel('Predicted labels')
-        plt.ylabel('True labels')
-        plt.title('Confusion Matrix')
+        plt.scatter(y_true, y_pred, alpha=0.3)
+        plt.plot([min(y_true), max(y_true)], [min(y_true), max(y_true)], color='red', linestyle='--')
+        plt.xlabel('True Values')
+        plt.ylabel('Predicted Values')
+        plt.title('True vs Predicted Values')
         plt.show()
 
-        fpr, tpr, thresholds = roc_curve(y_true, y_pred)
-        roc_auc = roc_auc_score(y_true, y_pred)
-        plt.figure(figsize=(8, 6))
-        plt.plot(fpr, tpr, label=f'AUC = {roc_auc:.2f}')
-        plt.plot([0, 1], [0, 1], linestyle='--', color='grey')
-        plt.xlabel('False Positive Rate')
-        plt.ylabel('True Positive Rate')
-        plt.title('ROC Curve')
-        plt.legend()
-        plt.show()
-
-        precision, recall, _ = precision_recall_curve(y_true, y_pred)
-        plt.figure(figsize=(8, 6))
-        plt.plot(recall, precision)
-        plt.xlabel('Recall')
-        plt.ylabel('Precision')
-        plt.title('Precision-Recall Curve')
-        plt.show()
-
-def eval():
-    file_path = "EURUSD_Candlestick_1_Hour_BID_01.01.2004-30.03.2024.csv"
-    X_val, y_val, scaler = load_and_preprocess_data(file_path)
-
-    X_val_tensor = torch.Tensor(X_val)
-    y_val_tensor = torch.Tensor(y_val.values)
-
-    input_size = X_val_tensor.shape[2]
-    model = GRUTFTModel(input_size, output_size)
-
-    model.load_state_dict(torch.load('best_model.pth'))
-
-    criterion = nn.MSELoss()
-
-    evaluate_model(model, criterion, X_val_tensor, y_val_tensor)
-
-if __name__ == "__main__":
-    eval()
+        residuals = y_true - y_pred
+        plot_residuals(y_true, y_pred)
+        plot_residuals_distribution(residuals)
