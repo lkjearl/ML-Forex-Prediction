@@ -41,12 +41,12 @@ def main():
     criterion = nn.MSELoss()
     optimizer = optim.Adam(model.parameters(), lr=0.001, weight_decay=0.001)
 
-    epochs = 2
+    epochs = 50
     train_losses = []
     val_losses = []
 
     best_val_loss = float('inf')
-    patience, trials = 5, 1
+    patience, trials = 15, 2
 
     for epoch in range(epochs):
         model.train()
