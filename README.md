@@ -65,7 +65,7 @@ This project aims to predict Forex market movements using machine learning techn
 
 2. **Evaluate model and generate plots**
     ```sh
-    python eval_metrics.py
+    python evaluate.py
     ```
 
 ## Example Usage
