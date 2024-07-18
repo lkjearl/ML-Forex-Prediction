@@ -56,20 +56,20 @@ This project aims to predict Forex market movements using machine learning techn
 
 3. **Download dataset**
     - Ensure you have the dataset in the project directory (I used mine from duskacopy).
-    - Modify file_path in main() and eval() to your file name.
+    - Modify *file_path* in **main()** and **eval()** to your file name.
 ## Usage
 1. **Train model**
-    '''sh
+    ```sh
     python main.py
-    '''
+    ```
 
 2. **Evaluate model and generate plots**
-    '''sh
+    ```sh
     python eval_metrics.py
-    '''
+    ```
 
 ## Example Usage
-For a step-by-step example, you may refer to 'example_usage.ipynb' jupyter notebook from this repository.
+For a step-by-step example, you may refer to **'example_usage.ipynb'** jupyter notebook from this repository.
 
 ## Technologies Used
 
